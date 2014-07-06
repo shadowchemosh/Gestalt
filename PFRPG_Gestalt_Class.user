@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document signature="Hero Lab Data">
+  <thing id="cHelpS2G" name="Gestalt" compset="Class" uniqueness="unique">
+    <fieldval field="cAbbr" value="Glt"/>
+    <tag group="cAttack" tag="Poor"/>
+    <tag group="cFort" tag="Poor"/>
+    <tag group="cRef" tag="Poor"/>
+    <tag group="cWill" tag="Poor"/>
+    <tag group="Classes" tag="S2Gestalt" name="Gestalt"/>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="1"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="2"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="3"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="4"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="5"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="6"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="7"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="8"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="9"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="10"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="11"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="12"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="13"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="14"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="15"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="16"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="17"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="18"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="19"/>
+      </bootstrap>
+    <bootstrap thing="cS2GClasPi">
+      <autotag group="ClSpecWhen" tag="20"/>
+      </bootstrap>
+    <eval phase="First" priority="1">
+      perform delete[cAttack.?]
+      perform delete[cFort.?]
+      perform delete[cRef.?]
+      perform delete[cWill.?]</eval>
+    <eval phase="PreLevel" priority="3" index="2"><![CDATA[
+      ~ If we are under level 3 don't do anything as we will cause errors
+      ~ Once we have three classes then we can modify it down to two.
+      doneif (hero.tagcount[Classes.?] < 3)
+
+      var nHitDice as number
+      var nGestalt as number
+      var iX as number
+
+      nHitDice = hero.tagcount[Hero.HitDice]
+      nGestalt = hero.tagcount[Classes.S2Gestalt]
+      nHitDice = nHitDice - (nGestalt * 2)
+      perform hero.delete[Classes.?]
+      perform hero.delete[Hero.HitDice]
+      iX = 0
+      while (iX < nHitDice)
+        iX += 1
+        perform hero.assign[Hero.HitDice]
+        perform hero.assign[Classes.S2Gestalt]
+      loop
+      ]]>
+     </eval>
+    <eval phase="Level" priority="19997" index="3"><![CDATA[
+      ~ Clear Fort, Ref, Will and BAB values
+      ~ This prevents the Save and BAB tags from having an effect
+      ~ on the this class.
+      field[cClassFort].value = 0
+      field[cClassRef].value  = 0
+      field[cClassWill].value = 0
+      field[cClassBAB].value  = 0
+    ]]></eval>
+    </thing>
+  <thing id="cS2Gestalt" name="Gestalt" compset="ClassLevel" maxlimit="20">
+    <tag group="ClassType" tag="Normal"/>
+    <bootstrap thing="cHelpS2G"></bootstrap>
+    <link linkage="helper" thing="cHelpS2G"/>
+    <eval phase="PostLevel" priority="10" index="1"><![CDATA[
+      doneif (herofield[tLevel].value < 3)
+
+      ~ Readjust our Level only as HD are handled by tags now
+      ~ This helps remove each gestalt class
+      herofield[tLevel].value += -2
+      herofield[tSkillCnt].value += -2
+      ]]></eval>
+    <eval phase="First" priority="1" index="2"><![CDATA[
+      ~ Push a very early level tag so we know what gestalt level we are
+      perform hero.assign[Gestalt.Level]
+      ]]></eval>
+    </thing>
+  <thing id="cS2GClasPi" name="Class Picker" description="Pick the two classes that represent your Gestalt class." compset="ClSpecial" summary="Pick the two classes that represent your Gestalt class.">
+    <fieldval field="usrCandid1" value="component.BaseClass &amp; !thingid.cS2Gestalt"/>
+    <fieldval field="usrCandid2" value="component.BaseClass &amp; !thingid.cS2Gestalt"/>
+    <tag group="ChooseSrc2" tag="Hero"/>
+    <tag group="Helper" tag="SpecUp"/>
+    <tag group="ChooseSrc1" tag="Hero"/>
+    <eval phase="First" priority="10"><![CDATA[
+    ~ If we are not the correct level for this class special
+    ~ then get out now!
+    ~ Note: Gestalt.Level is applied at First/1.
+    doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
+
+If (field[usrChosen1].ischosen <> 0) Then
+  perform field[usrChosen1].chosen.assign[Helper.FixedHP]
+  perform field[usrChosen1].chosen.assign[Helper.CLNoHP]
+  perform field[usrChosen1].chosen.linkage[helper].pulltags[cAttack.?]
+  perform field[usrChosen1].chosen.linkage[helper].pulltags[cFort.?]
+  perform field[usrChosen1].chosen.linkage[helper].pulltags[cRef.?]
+  perform field[usrChosen1].chosen.linkage[helper].pulltags[cWill.?]
+Endif
+
+If (field[usrChosen2].ischosen <> 0) Then
+  perform field[usrChosen2].chosen.assign[Helper.FixedHP]
+  perform field[usrChosen2].chosen.assign[Helper.CLNoHP]
+  perform field[usrChosen2].chosen.linkage[helper].pulltags[cAttack.?]
+  perform field[usrChosen2].chosen.linkage[helper].pulltags[cFort.?]
+  perform field[usrChosen2].chosen.linkage[helper].pulltags[cRef.?]
+  perform field[usrChosen2].chosen.linkage[helper].pulltags[cWill.?]
+Endif
+
+~ If both not picked then get out now!
+doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+var result as number
+
+~ Attack
+result = root.pushtags[cAttack.Good]
+If (result = 0) Then
+  result = root.pushtags[cAttack.Medium]
+Endif
+If (result = 0) Then
+    perform root.pushtags[cAttack.Poor]
+Endif
+~ FORT
+result = root.pushtags[cFort.Good]
+If (result = 0) Then
+  result = root.pushtags[cFort.Medium]
+Endif
+If (result = 0) Then
+    perform root.pushtags[cFort.Poor]
+Endif
+~ REFLEX
+result = root.pushtags[cRef.Good]
+If (result = 0) Then
+  result = root.pushtags[cRef.Medium]
+Endif
+If (result = 0) Then
+    perform root.pushtags[cRef.Poor]
+Endif
+~ WILL
+result = root.pushtags[cWill.Good]
+If (result = 0) Then
+  result = root.pushtags[cWill.Medium]
+Endif
+If (result = 0) Then
+    perform root.pushtags[cWill.Poor]
+Endif
+~ Die Size
+If (field[usrChosen1].chosen.linkage[helper].field[cHDSides].value > field[usrChosen2].chosen.linkage[helper].field[cHDSides].value) Then
+  root.field[cHDSides].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cHDSides].value,root.field[cHDSides].value)
+Else
+  root.field[cHDSides].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cHDSides].value,root.field[cHDSides].value)
+Endif
+field[usrChosen1].chosen.linkage[helper].field[cHDSides].value = 0
+field[usrChosen2].chosen.linkage[helper].field[cHDSides].value = 0
+trustme
+field[usrChosen1].chosen.field[cHP].value = 0
+field[usrChosen2].chosen.field[cHP].value = 0
+~ Skill Points
+If (field[usrChosen1].chosen.linkage[helper].field[cSkills].value > field[usrChosen2].chosen.linkage[helper].field[cSkills].value) Then
+  root.field[cSkills].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
+Else
+  root.field[cSkills].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
+Endif
+~ Zero out the class skill points
+field[usrChosen1].chosen.linkage[helper].field[cSkills].value = -1
+field[usrChosen2].chosen.linkage[helper].field[cSkills].value = -1
+~ Take out the other two classes base skill points of "1"
+#resmax[resSkill] -= 2]]></eval>
+
+
+    <eval phase="Level" priority="19999" index="2"><![CDATA[
+    ~ If we are not the correct level for this class special
+    ~ then get out now!
+    ~ Note: Gestalt.Level is applied at First/1.
+    doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
+    ~ If both not picked then get out now!
+    doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+
+    ~ Figure out the best Save and BAB values and save them into abValue
+    ~ abValue  = FORT
+    ~ abValue2 = REFLEX
+    ~ abValue3 = WILL
+    ~ abValue4 = BAB
+
+    ~ Fort Save
+    If (field[usrChosen1].chosen.linkage[helper].field[cClassFort].value > field[usrChosen2].chosen.linkage[helper].field[cClassFort].value) Then
+      field[abValue].value = field[usrChosen1].chosen.linkage[helper].field[cClassFort].value
+    Else
+      field[abValue].value = field[usrChosen2].chosen.linkage[helper].field[cClassFort].value
+    Endif
+    ~ Ref Save
+    If (field[usrChosen1].chosen.linkage[helper].field[cClassRef].value > field[usrChosen2].chosen.linkage[helper].field[cClassRef].value) Then
+      field[abValue2].value = field[usrChosen1].chosen.linkage[helper].field[cClassRef].value
+    Else
+      field[abValue2].value = field[usrChosen2].chosen.linkage[helper].field[cClassRef].value
+    Endif
+    ~ Will Save
+    If (field[usrChosen1].chosen.linkage[helper].field[cClassWill].value > field[usrChosen2].chosen.linkage[helper].field[cClassWill].value) Then
+      field[abValue3].value = field[usrChosen1].chosen.linkage[helper].field[cClassWill].value
+    Else
+      field[abValue3].value = field[usrChosen2].chosen.linkage[helper].field[cClassWill].value
+    Endif
+    ~ BAB
+    If (field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value > field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value) Then
+      field[abValue4].value = field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value
+    Else
+      field[abValue4].value = field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value
+    Endif
+    ~ Add in our "best" values to the Gestalt Class
+    root.field[cClassFort].value += field[abValue].value
+    root.field[cClassRef].value  += field[abValue2].value
+    root.field[cClassWill].value += field[abValue3].value
+    root.field[cClassBAB].value  += field[abValue4].value
+
+    ~ Chooser 1 Clear Fort, Ref, Will and BAB values
+    field[usrChosen1].chosen.linkage[helper].field[cClassFort].value = 0
+    field[usrChosen1].chosen.linkage[helper].field[cClassRef].value  = 0
+    field[usrChosen1].chosen.linkage[helper].field[cClassWill].value = 0
+    field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value  = 0
+    ~ Chooser 2 Clear Fort, Ref, Will and BAB values
+    field[usrChosen2].chosen.linkage[helper].field[cClassFort].value = 0
+    field[usrChosen2].chosen.linkage[helper].field[cClassRef].value  = 0
+    field[usrChosen2].chosen.linkage[helper].field[cClassWill].value = 0
+    field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value  = 0
+    ]]></eval>
+
+    </thing>
+  </document>

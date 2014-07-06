@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document signature="Hero Lab Structure">
+<!--
+
+March 1, 2013 - Tim Shadow
+-Broke out the tags to its own .1st file to make maintenanince easier.
+
+-->
+<!-- ===================================================== -->
+<!-- CUSTOM GROUPS AND TAGS FOR GESTALT CLASSES ADDON      -->
+<!-- ===================================================== -->
+  <!-- Path of War custom tags -->
+  <group id="Gestalt" name="Gestalt">
+    <value id="Level"    name="Level Count"/>
+  </group>
+
+
+
+
+
+
+
+
+  </document>

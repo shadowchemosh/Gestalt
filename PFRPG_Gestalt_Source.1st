@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document signature="Hero Lab Structure">
+<!--
+
+July 1, 2014 Tim Shadow
+-Created New.
+-->
+
+
+<!-- ============================================== -->
+<!-- SOURCES                                        -->
+<!-- ============================================== -->
+  <!-- Gestalt Child Parent -->
+  <source
+    id="pGestalt"
+    name="Gestalt v0.5"
+    selectable="no"
+    parent="UserParent"
+    sortorder="0"
+    description="Gestalt Varient rules for Pathfinder.">
+    </source>
+
+  <!-- Gestalt Variant Rules Child -->
+  <source
+    id="srcGestalt"
+    name="Gestalt Variant"
+    selectable="yes"
+    parent="pGestalt"
+    sortorder="10"
+    description="Gestalt Variant rules for Pathfinder released 7/6/2014. CopyRighted Tim Shadow 2014.">
+    </source>
+
+  </document>

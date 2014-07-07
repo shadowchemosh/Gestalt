@@ -2,6 +2,7 @@
 <document signature="Hero Lab Data">
   <thing id="cHelpS2G" name="Gestalt" compset="Class" uniqueness="unique">
     <fieldval field="cAbbr" value="Glt"/>
+    <usesource source="srcGestalt"/>
     <tag group="cAttack" tag="Poor"/>
     <tag group="cFort" tag="Poor"/>
     <tag group="cRef" tag="Poor"/>
@@ -72,6 +73,7 @@
       perform delete[cFort.?]
       perform delete[cRef.?]
       perform delete[cWill.?]</eval>
+
     <eval phase="PreLevel" priority="3" index="2"><![CDATA[
       ~ If we are under level 3 don't do anything as we will cause errors
       ~ Once we have three classes then we can modify it down to two.
@@ -94,6 +96,7 @@
       loop
       ]]>
      </eval>
+
     <eval phase="Level" priority="19997" index="3"><![CDATA[
       ~ Clear Fort, Ref, Will and BAB values
       ~ This prevents the Save and BAB tags from having an effect
@@ -102,13 +105,20 @@
       field[cClassRef].value  = 0
       field[cClassWill].value = 0
       field[cClassBAB].value  = 0
-    ]]></eval>
-    </thing>
-  <thing id="cS2Gestalt" name="Gestalt" compset="ClassLevel" maxlimit="20">
+      ]]>
+    </eval>
+
+  </thing>
+
+  <thing id="cS2Gestalt" name="Gestalt" description="This special class allows for using Gestalt rules in your campaign.\n\nIn this high-powered campaign variant, characters essentially take two classes at every level, choosing the best aspects of each. The process is similar to multiclassing, except that characters gain the full benefits of each class at each level. if the two classes you choose have aspects that overlap (such as Hit Dice, attack progression, saves, and class features common to more than one class), you choose the better aspect. The gestalt character retains all aspects that don’t overlap.\n\n{B}Note:{/b} This class should be added BEFORE your other two classes you wish to combine. So if you wanted to be a fighter/rogue gestalt you would add a level of gestalt then fighter and finally rogue. Switch to the Gestalt tab and on the level 1 'Class Picker' ability choose fighter and rogue. Then you can switch back to the Classes tab and enter your HP if you need to.\n\n{b}Favored Class:{/b} For now the first two classes you pick at level one will be considered your favored classes. But your gestalt class will be able to pick from any FC's that are related to either class.\n\n{b}Class Level:{/b} Your total level for your character will be your Gestalt class level.  So even though HL will show you Fighter 2 / Rogue 2 / Gestalt 2 you are really a level 2 character and will only be able to put 2 ranks into a skill." compset="ClassLevel" maxlimit="20">
+    <usesource source="srcGestalt"/>
     <tag group="ClassType" tag="Normal"/>
     <bootstrap thing="cHelpS2G"></bootstrap>
     <link linkage="helper" thing="cHelpS2G"/>
+
     <eval phase="PostLevel" priority="10" index="1"><![CDATA[
+      ~ If we are under level 3 don't do anything as we will cause errors
+      ~ Once we have three classes then we can modify it down to two.
       doneif (herofield[tLevel].value < 3)
 
       ~ Readjust our Level only as HD are handled by tags now
@@ -116,156 +126,199 @@
       herofield[tLevel].value += -2
       herofield[tSkillCnt].value += -2
       ]]></eval>
-    <eval phase="First" priority="1" index="2"><![CDATA[
+
+    <eval phase="PostAttr" priority="15000" index="2"><![CDATA[
+      ~ If we have no skill bonus per level value then get out now!
+      doneif (herofield[tSkBonus].value = 0)
+
+      ~ Remove the skill bonuses for each of the gestalt classes
+      #resmax[resSkill] -= (herofield[tSkBonus].value * 2)
+      ]]>
+      </eval>
+
+    <eval phase="First" priority="1" index="3"><![CDATA[
       ~ Push a very early level tag so we know what gestalt level we are
       perform hero.assign[Gestalt.Level]
-      ]]></eval>
-    </thing>
+      ]]>
+    </eval>
+
+  </thing>
+
   <thing id="cS2GClasPi" name="Class Picker" description="Pick the two classes that represent your Gestalt class." compset="ClSpecial" summary="Pick the two classes that represent your Gestalt class.">
-    <fieldval field="usrCandid1" value="component.BaseClass &amp; !thingid.cS2Gestalt"/>
-    <fieldval field="usrCandid2" value="component.BaseClass &amp; !thingid.cS2Gestalt"/>
+    <fieldval field="usrCandid1" value="component.BaseClass &amp; !(thingid.cS2Gestalt|Gestalt.Chosen)"/>
+    <fieldval field="usrCandid2" value="component.BaseClass &amp; !(thingid.cS2Gestalt|Gestalt.Chosen)"/>
+    <tag group="Helper"     tag="SpecUp"/>
     <tag group="ChooseSrc2" tag="Hero"/>
-    <tag group="Helper" tag="SpecUp"/>
     <tag group="ChooseSrc1" tag="Hero"/>
     <eval phase="First" priority="10"><![CDATA[
-    ~ If we are not the correct level for this class special
-    ~ then get out now!
-    ~ Note: Gestalt.Level is applied at First/1.
-    doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
+      ~ If we are not the correct level for this class special
+      ~ then get out now!
+      ~ Note: Gestalt.Level is applied at First/1.
+      doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
 
-If (field[usrChosen1].ischosen <> 0) Then
-  perform field[usrChosen1].chosen.assign[Helper.FixedHP]
-  perform field[usrChosen1].chosen.assign[Helper.CLNoHP]
-  perform field[usrChosen1].chosen.linkage[helper].pulltags[cAttack.?]
-  perform field[usrChosen1].chosen.linkage[helper].pulltags[cFort.?]
-  perform field[usrChosen1].chosen.linkage[helper].pulltags[cRef.?]
-  perform field[usrChosen1].chosen.linkage[helper].pulltags[cWill.?]
-Endif
+      If (field[usrChosen1].ischosen <> 0) Then
+        perform field[usrChosen1].chosen.assign[Helper.FixedHP]
+        perform field[usrChosen1].chosen.assign[Helper.CLNoHP]
+        perform field[usrChosen1].chosen.assign[Gestalt.Chosen]
+        perform field[usrChosen1].chosen.linkage[helper].pulltags[cAttack.?]
+        perform field[usrChosen1].chosen.linkage[helper].pulltags[cFort.?]
+        perform field[usrChosen1].chosen.linkage[helper].pulltags[cRef.?]
+        perform field[usrChosen1].chosen.linkage[helper].pulltags[cWill.?]
+        perform field[usrChosen1].chosen.pulltags[FavClass.?]
+      Endif
 
-If (field[usrChosen2].ischosen <> 0) Then
-  perform field[usrChosen2].chosen.assign[Helper.FixedHP]
-  perform field[usrChosen2].chosen.assign[Helper.CLNoHP]
-  perform field[usrChosen2].chosen.linkage[helper].pulltags[cAttack.?]
-  perform field[usrChosen2].chosen.linkage[helper].pulltags[cFort.?]
-  perform field[usrChosen2].chosen.linkage[helper].pulltags[cRef.?]
-  perform field[usrChosen2].chosen.linkage[helper].pulltags[cWill.?]
-Endif
+      If (field[usrChosen2].ischosen <> 0) Then
+        perform field[usrChosen2].chosen.assign[Helper.FixedHP]
+        perform field[usrChosen2].chosen.assign[Helper.CLNoHP]
+        perform field[usrChosen2].chosen.assign[Gestalt.Chosen]
+        perform field[usrChosen2].chosen.linkage[helper].pulltags[cAttack.?]
+        perform field[usrChosen2].chosen.linkage[helper].pulltags[cFort.?]
+        perform field[usrChosen2].chosen.linkage[helper].pulltags[cRef.?]
+        perform field[usrChosen2].chosen.linkage[helper].pulltags[cWill.?]
+        perform field[usrChosen2].chosen.pulltags[FavClass.?]
+      Endif
 
-~ If both not picked then get out now!
-doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
-var result as number
+      ~ If both not picked then get out now!
+      doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+      var result as number
 
-~ Attack
-result = root.pushtags[cAttack.Good]
-If (result = 0) Then
-  result = root.pushtags[cAttack.Medium]
-Endif
-If (result = 0) Then
-    perform root.pushtags[cAttack.Poor]
-Endif
-~ FORT
-result = root.pushtags[cFort.Good]
-If (result = 0) Then
-  result = root.pushtags[cFort.Medium]
-Endif
-If (result = 0) Then
-    perform root.pushtags[cFort.Poor]
-Endif
-~ REFLEX
-result = root.pushtags[cRef.Good]
-If (result = 0) Then
-  result = root.pushtags[cRef.Medium]
-Endif
-If (result = 0) Then
-    perform root.pushtags[cRef.Poor]
-Endif
-~ WILL
-result = root.pushtags[cWill.Good]
-If (result = 0) Then
-  result = root.pushtags[cWill.Medium]
-Endif
-If (result = 0) Then
-    perform root.pushtags[cWill.Poor]
-Endif
-~ Die Size
-If (field[usrChosen1].chosen.linkage[helper].field[cHDSides].value > field[usrChosen2].chosen.linkage[helper].field[cHDSides].value) Then
-  root.field[cHDSides].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cHDSides].value,root.field[cHDSides].value)
-Else
-  root.field[cHDSides].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cHDSides].value,root.field[cHDSides].value)
-Endif
-field[usrChosen1].chosen.linkage[helper].field[cHDSides].value = 0
-field[usrChosen2].chosen.linkage[helper].field[cHDSides].value = 0
-trustme
-field[usrChosen1].chosen.field[cHP].value = 0
-field[usrChosen2].chosen.field[cHP].value = 0
-~ Skill Points
-If (field[usrChosen1].chosen.linkage[helper].field[cSkills].value > field[usrChosen2].chosen.linkage[helper].field[cSkills].value) Then
-  root.field[cSkills].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
-Else
-  root.field[cSkills].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
-Endif
-~ Zero out the class skill points
-field[usrChosen1].chosen.linkage[helper].field[cSkills].value = -1
-field[usrChosen2].chosen.linkage[helper].field[cSkills].value = -1
-~ Take out the other two classes base skill points of "1"
-#resmax[resSkill] -= 2]]></eval>
-
+      ~ Attack
+      result = root.pushtags[cAttack.Good]
+      If (result = 0) Then
+        result = root.pushtags[cAttack.Medium]
+      Endif
+      If (result = 0) Then
+          perform root.pushtags[cAttack.Poor]
+      Endif
+      ~ FORT
+      result = root.pushtags[cFort.Good]
+      If (result = 0) Then
+        result = root.pushtags[cFort.Medium]
+      Endif
+      If (result = 0) Then
+          perform root.pushtags[cFort.Poor]
+      Endif
+      ~ REFLEX
+      result = root.pushtags[cRef.Good]
+      If (result = 0) Then
+        result = root.pushtags[cRef.Medium]
+      Endif
+      If (result = 0) Then
+          perform root.pushtags[cRef.Poor]
+      Endif
+      ~ WILL
+      result = root.pushtags[cWill.Good]
+      If (result = 0) Then
+        result = root.pushtags[cWill.Medium]
+      Endif
+      If (result = 0) Then
+          perform root.pushtags[cWill.Poor]
+      Endif
+      ~ Die Size
+      If (field[usrChosen1].chosen.linkage[helper].field[cHDSides].value > field[usrChosen2].chosen.linkage[helper].field[cHDSides].value) Then
+        root.field[cHDSides].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cHDSides].value,root.field[cHDSides].value)
+      Else
+        root.field[cHDSides].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cHDSides].value,root.field[cHDSides].value)
+      Endif
+      field[usrChosen1].chosen.linkage[helper].field[cHDSides].value = 0
+      field[usrChosen2].chosen.linkage[helper].field[cHDSides].value = 0
+      trustme
+      field[usrChosen1].chosen.field[cHP].value = 0
+      field[usrChosen2].chosen.field[cHP].value = 0
+      ~ Skill Points
+      If (field[usrChosen1].chosen.linkage[helper].field[cSkills].value > field[usrChosen2].chosen.linkage[helper].field[cSkills].value) Then
+        field[usrChosen2].chosen.linkage[helper].field[cSkills].value = 0
+        ~root.field[cSkills].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
+      Else
+        field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
+        ~root.field[cSkills].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
+      Endif
+      ~ Zero out the class skill points
+      ~field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
+      ~field[usrChosen2].chosen.linkage[helper].field[cSkills].value = 0
+      ~ Take out the other two classes base skill points of "1"
+      #resmax[resSkill] -= 2
+    ]]>
+    </eval>
 
     <eval phase="Level" priority="19999" index="2"><![CDATA[
-    ~ If we are not the correct level for this class special
-    ~ then get out now!
-    ~ Note: Gestalt.Level is applied at First/1.
-    doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
-    ~ If both not picked then get out now!
-    doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+      ~ If we are not the correct level for this class special
+      ~ then get out now!
+      ~ Note: Gestalt.Level is applied at First/1.
+      doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
+      ~ If both not picked then get out now!
+      doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
 
-    ~ Figure out the best Save and BAB values and save them into abValue
-    ~ abValue  = FORT
-    ~ abValue2 = REFLEX
-    ~ abValue3 = WILL
-    ~ abValue4 = BAB
+      ~ Figure out the best Save and BAB values and save them into abValue
+      ~ abValue  = FORT
+      ~ abValue2 = REFLEX
+      ~ abValue3 = WILL
+      ~ abValue4 = BAB
 
-    ~ Fort Save
-    If (field[usrChosen1].chosen.linkage[helper].field[cClassFort].value > field[usrChosen2].chosen.linkage[helper].field[cClassFort].value) Then
-      field[abValue].value = field[usrChosen1].chosen.linkage[helper].field[cClassFort].value
-    Else
-      field[abValue].value = field[usrChosen2].chosen.linkage[helper].field[cClassFort].value
-    Endif
-    ~ Ref Save
-    If (field[usrChosen1].chosen.linkage[helper].field[cClassRef].value > field[usrChosen2].chosen.linkage[helper].field[cClassRef].value) Then
-      field[abValue2].value = field[usrChosen1].chosen.linkage[helper].field[cClassRef].value
-    Else
-      field[abValue2].value = field[usrChosen2].chosen.linkage[helper].field[cClassRef].value
-    Endif
-    ~ Will Save
-    If (field[usrChosen1].chosen.linkage[helper].field[cClassWill].value > field[usrChosen2].chosen.linkage[helper].field[cClassWill].value) Then
-      field[abValue3].value = field[usrChosen1].chosen.linkage[helper].field[cClassWill].value
-    Else
-      field[abValue3].value = field[usrChosen2].chosen.linkage[helper].field[cClassWill].value
-    Endif
-    ~ BAB
-    If (field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value > field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value) Then
-      field[abValue4].value = field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value
-    Else
-      field[abValue4].value = field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value
-    Endif
-    ~ Add in our "best" values to the Gestalt Class
-    root.field[cClassFort].value += field[abValue].value
-    root.field[cClassRef].value  += field[abValue2].value
-    root.field[cClassWill].value += field[abValue3].value
-    root.field[cClassBAB].value  += field[abValue4].value
+      ~ Fort Save
+      If (field[usrChosen1].chosen.linkage[helper].field[cClassFort].value > field[usrChosen2].chosen.linkage[helper].field[cClassFort].value) Then
+        field[abValue].value = field[usrChosen1].chosen.linkage[helper].field[cClassFort].value
+      Else
+        field[abValue].value = field[usrChosen2].chosen.linkage[helper].field[cClassFort].value
+      Endif
+      ~ Ref Save
+      If (field[usrChosen1].chosen.linkage[helper].field[cClassRef].value > field[usrChosen2].chosen.linkage[helper].field[cClassRef].value) Then
+        field[abValue2].value = field[usrChosen1].chosen.linkage[helper].field[cClassRef].value
+      Else
+        field[abValue2].value = field[usrChosen2].chosen.linkage[helper].field[cClassRef].value
+      Endif
+      ~ Will Save
+      If (field[usrChosen1].chosen.linkage[helper].field[cClassWill].value > field[usrChosen2].chosen.linkage[helper].field[cClassWill].value) Then
+        field[abValue3].value = field[usrChosen1].chosen.linkage[helper].field[cClassWill].value
+      Else
+        field[abValue3].value = field[usrChosen2].chosen.linkage[helper].field[cClassWill].value
+      Endif
+      ~ BAB
+      If (field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value > field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value) Then
+        field[abValue4].value = field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value
+      Else
+        field[abValue4].value = field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value
+      Endif
+      ~ Add in our "best" values to the Gestalt Class
+      root.field[cClassFort].value += field[abValue].value
+      root.field[cClassRef].value  += field[abValue2].value
+      root.field[cClassWill].value += field[abValue3].value
+      root.field[cClassBAB].value  += field[abValue4].value
 
-    ~ Chooser 1 Clear Fort, Ref, Will and BAB values
-    field[usrChosen1].chosen.linkage[helper].field[cClassFort].value = 0
-    field[usrChosen1].chosen.linkage[helper].field[cClassRef].value  = 0
-    field[usrChosen1].chosen.linkage[helper].field[cClassWill].value = 0
-    field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value  = 0
-    ~ Chooser 2 Clear Fort, Ref, Will and BAB values
-    field[usrChosen2].chosen.linkage[helper].field[cClassFort].value = 0
-    field[usrChosen2].chosen.linkage[helper].field[cClassRef].value  = 0
-    field[usrChosen2].chosen.linkage[helper].field[cClassWill].value = 0
-    field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value  = 0
+      ~ Chooser 1 Clear Fort, Ref, Will and BAB values
+      field[usrChosen1].chosen.linkage[helper].field[cClassFort].value = 0
+      field[usrChosen1].chosen.linkage[helper].field[cClassRef].value  = 0
+      field[usrChosen1].chosen.linkage[helper].field[cClassWill].value = 0
+      field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value  = 0
+      ~ Chooser 2 Clear Fort, Ref, Will and BAB values
+      field[usrChosen2].chosen.linkage[helper].field[cClassFort].value = 0
+      field[usrChosen2].chosen.linkage[helper].field[cClassRef].value  = 0
+      field[usrChosen2].chosen.linkage[helper].field[cClassWill].value = 0
+      field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value  = 0
     ]]></eval>
+
+    <eval phase="Final" priority="100" index="3"><![CDATA[   
+      ~ Only perform this script on the VERY first copy
+      doneif (tagis[Helper.FirstCopy] <> 1)
+      ~ If both classes not picked then get out now!
+      doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+
+      ~ Find all Favored Class things that match either of our
+      ~ two chosen classes.
+      foreach pick in hero from FavClass where tagids[FavClass.?,"|"]
+        perform eachpick.assign[FavClass.cS2Gestalt]
+      nexteach
+      ]]>
+    </eval>
+
+    <eval phase="Final" priority="999999999" index="4"><![CDATA[   
+      ~ If both classes not picked then get out now!
+      doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+
+      perform field[usrChosen1].chosen.linkage[helper].forward[Classes.?]
+      perform field[usrChosen2].chosen.linkage[helper].forward[Classes.?]
+      ]]>
+    </eval>
 
     </thing>
   </document>

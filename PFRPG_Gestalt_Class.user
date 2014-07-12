@@ -72,7 +72,8 @@
       perform delete[cAttack.?]
       perform delete[cFort.?]
       perform delete[cRef.?]
-      perform delete[cWill.?]</eval>
+      perform delete[cWill.?]
+    </eval>
 
     <eval phase="PreLevel" priority="3" index="2"><![CDATA[
       ~ If we are under level 3 don't do anything as we will cause errors
@@ -128,11 +129,20 @@
       ]]></eval>
 
     <eval phase="PostAttr" priority="15000" index="2"><![CDATA[
-      ~ If we have no skill bonus per level value then get out now!
-      doneif (herofield[tSkBonus].value = 0)
-
-      ~ Remove the skill bonuses for each of the gestalt classes
-      #resmax[resSkill] -= (herofield[tSkBonus].value * 2)
+      var nSkills as number
+      ~ If we are negative or zero just remove one skill point of each gestalt class
+      If (hero.child[aINT].field[aBonus].value <= 0) Then
+         nSkills = 1
+      ~ if positive then calc
+      Else
+         nSkills = hero.child[aINT].field[aBonus].value
+      Endif
+      ~ Add in our skill bonus level
+      nSkills += herofield[tSkBonus].value
+      ~ Double the value here to take into account two gestalt classes
+      nSkills *= 2
+      ~ remove our extra skills for from each gestalt class that HL calculated
+      #resmax[resSkill] -= nSkills
       ]]>
       </eval>
 
@@ -237,7 +247,7 @@
       ~field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
       ~field[usrChosen2].chosen.linkage[helper].field[cSkills].value = 0
       ~ Take out the other two classes base skill points of "1"
-      #resmax[resSkill] -= 2
+      ~#resmax[resSkill] -= 2
     ]]>
     </eval>
 

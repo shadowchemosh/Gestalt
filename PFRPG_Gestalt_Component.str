@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- This file contains the definitions of components associated with adjustments.
+Author: Tim Shadow
+  Date: May 1, 2014
+  Copy Righted 2014 Tim Shadow
+-->
+
+<document signature="Hero Lab Structure">
+
+  <!-- ==================================================  -->
+  <component
+    id="GestHelp"
+    name="Gestalt Helper"
+    autocompset="no"
+    hasshortname="no"
+    ispublic="no">
+
+    <!-- Class BAB Arrays -->
+    <field
+      id="cGoodBAB"
+      name="Good BAB Values"
+      type="derived"
+      style="array"
+      arrayrows="20">
+    </field>
+    <field
+      id="cMediumBAB"
+      name="Medium BAB Values"
+      type="derived"
+      style="array"
+      arrayrows="20">
+    </field>
+    <field
+      id="cPoorBAB"
+      name="Poor BAB Values"
+      type="derived"
+      style="array"
+      arrayrows="20">
+    </field>
+
+    <!-- Class Save Arrays -->
+    <field
+      id="cGoodSv"
+      name="Good Class Saves"
+      type="derived"
+      style="array"
+      arrayrows="20">
+    </field>
+    <field
+      id="cPoorSv"
+      name="Poor Class Saves"
+      type="derived"
+      style="array"
+      arrayrows="20">
+    </field>
+
+    <!-- PrC BAB Arrays -->
+    <field
+      id="pGoodBAB"
+      name="Good PrC BAB Values"
+      type="derived"
+      style="array"
+      arrayrows="10">
+    </field>
+    <field
+      id="pMediumBAB"
+      name="Medium PrC BAB Values"
+      type="derived"
+      style="array"
+      arrayrows="10">
+    </field>
+    <field
+      id="pPoorBAB"
+      name="Poor PrC BAB Values"
+      type="derived"
+      style="array"
+      arrayrows="10">
+    </field>
+
+    <!-- PrC Save Arrays -->
+    <field
+      id="pGoodSv"
+      name="Good PrC Saves"
+      type="derived"
+      style="array"
+      arrayrows="10">
+    </field>
+    <field
+      id="pPoorSv"
+      name="Poor PrC Saves"
+      type="derived"
+      style="array"
+      arrayrows="10">
+    </field>
+
+    <eval phase="First" priority="10"><![CDATA[
+      var iX as number
+
+      ~ Good BAB
+      while (iX < 20)
+        iX += 1
+        field[cGoodBAB].arrayvalue[iX-1] = iX
+      loop
+
+      iX = 0
+      ~ Medium BAB
+      while (iX < 20)
+        iX += 1
+        field[cMediumBAB].arrayvalue[iX-1] = round(iX * 0.75,0,-1)
+      loop
+
+      iX = 0
+      ~ Poor BAB
+      while (iX < 20)
+        iX += 1
+        field[cPoorBAB].arrayvalue[iX-1] = round(iX * 0.5,0,-1)
+      loop
+
+      iX = 0
+      ~ Good Saves
+      while (iX < 20)
+        iX += 1
+        field[cGoodSv].arrayvalue[iX-1] = round(iX/2,0,-1) +2
+      loop
+
+      iX = 0
+      ~ Poor Saves
+      while (iX < 20)
+        iX += 1
+        field[cPoorSv].arrayvalue[iX-1] = round(iX/3,0,-1)
+      loop
+
+      ~ ===========PrC===============
+      iX = 0
+      ~ Good BAB
+      while (iX < 10)
+        iX += 1
+        field[pGoodBAB].arrayvalue[iX-1] = iX
+      loop
+
+      iX = 0
+      ~ Medium BAB
+      while (iX < 10)
+        iX += 1
+        field[pMediumBAB].arrayvalue[iX-1] = round(iX * 0.75,0,-1)
+      loop
+
+      iX = 0
+      ~ Poor BAB
+      while (iX < 10)
+        iX += 1
+        field[pPoorBAB].arrayvalue[iX-1] = round(iX * 0.5,0,-1)
+      loop
+
+      iX = 0
+      ~ Good Saves
+      while (iX < 10)
+        iX += 1
+        field[pGoodSv].arrayvalue[iX-1] = round(iX/2,0,1)
+      loop
+
+      iX = 0
+      ~ Poor Saves
+      while (iX < 10)
+        iX += 1
+        field[pPoorSv].arrayvalue[iX-1] = round(iX * .34,0,0)
+      loop
+      ]]>
+    </eval>
+
+  </component>
+  <!-- ************************************************************************ -->
+
+
+  <!--
+    <field
+      id="b4Darkvis"
+      name="Beast 4 Max Darkvision range"
+      type="derived"
+      defvalue="90">
+    </field>
+
+
+    <tag 
+      group="PolyAdjust" 
+      tag="Animal" 
+      name="Animal Type" 
+      />
+  -->
+
+
+  <compset
+    id="GestHelp"
+    forceunique="default">
+    <compref component="GestHelp"/>
+    <compref component="Value"/>
+  </compset>
+
+
+</document>

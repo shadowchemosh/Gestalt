@@ -129,24 +129,22 @@
       ]]></eval>
 
     <eval phase="PostAttr" priority="15000" index="2"><![CDATA[
-      var nSkills as number
-      ~ If we are negative or zero just remove one skill point of each gestalt class
-      If (hero.child[aINT].field[aBonus].value <= 0) Then
-         nSkills = 1
-      ~ if positive then calc
-      Else
-         nSkills = hero.child[aINT].field[aBonus].value
-      Endif
-      ~ Add in our skill bonus level
-      nSkills += herofield[tSkBonus].value
-      ~ Double the value here to take into account two gestalt classes
-      nSkills *= 2
-      ~ remove our extra skills for from each gestalt class that HL calculated
-      #resmax[resSkill] -= nSkills
+      ~ remove HL calculated values from the Skills Resource
+      #resmax[resSkill] = 0
       ]]>
-      </eval>
+    </eval>
 
-    <eval phase="First" priority="1" index="3"><![CDATA[
+    <eval phase="PostAttr" priority="15010" index="3"><![CDATA[
+      ~ At this point we have a single classes skills but we need to now
+      ~ add in Int bonus and we need to add any special skill bonuses
+      ~ like those a human gets.
+      ~ Note: This runs once per gestalt level
+      #resmax[resSkill] += hero.child[aINT].field[aBonus].value
+      #resmax[resSkill] += herofield[tSkBonus].value
+      ]]>
+    </eval>
+
+    <eval phase="First" priority="1" index="4"><![CDATA[
       ~ Push a very early level tag so we know what gestalt level we are
       perform hero.assign[Gestalt.Level]
       ]]>
@@ -160,7 +158,7 @@
     <tag group="Helper"     tag="SpecUp"/>
     <tag group="ChooseSrc2" tag="Hero"/>
     <tag group="ChooseSrc1" tag="Hero"/>
-    <eval phase="First" priority="10"><![CDATA[
+    <eval phase="First" priority="10" name="Gestalt Setup First"><![CDATA[
       ~ If we are not the correct level for this class special
       ~ then get out now!
       ~ Note: Gestalt.Level is applied at First/1.
@@ -230,28 +228,24 @@
       Else
         root.field[cHDSides].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cHDSides].value,root.field[cHDSides].value)
       Endif
+      ~ Zero out the two gestalt classes Hit Die value
       field[usrChosen1].chosen.linkage[helper].field[cHDSides].value = 0
       field[usrChosen2].chosen.linkage[helper].field[cHDSides].value = 0
       trustme
+      ~ Zero out the two gestalt classes Hit Points value
       field[usrChosen1].chosen.field[cHP].value = 0
       field[usrChosen2].chosen.field[cHP].value = 0
       ~ Skill Points
+      ~ save off the biggest skill point value
       If (field[usrChosen1].chosen.linkage[helper].field[cSkills].value > field[usrChosen2].chosen.linkage[helper].field[cSkills].value) Then
-        field[usrChosen2].chosen.linkage[helper].field[cSkills].value = 0
-        ~root.field[cSkills].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
+        field[dmrPenTrt].value = field[usrChosen1].chosen.linkage[helper].field[cSkills].value 
       Else
-        field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
-        ~root.field[cSkills].value = maximum(field[usrChosen2].chosen.linkage[helper].field[cSkills].value,root.field[cSkills].value)
+        field[dmrPenTrt].value = field[usrChosen2].chosen.linkage[helper].field[cSkills].value 
       Endif
-      ~ Zero out the class skill points
-      ~field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
-      ~field[usrChosen2].chosen.linkage[helper].field[cSkills].value = 0
-      ~ Take out the other two classes base skill points of "1"
-      ~#resmax[resSkill] -= 2
-    ]]>
+      ]]>
     </eval>
 
-    <eval phase="Level" priority="19999" index="2"><![CDATA[
+    <eval phase="Level" priority="19999" index="2" name="Gestalt Save Values"><![CDATA[
       ~ If we are not the correct level for this class special
       ~ then get out now!
       ~ Note: Gestalt.Level is applied at First/1.
@@ -264,36 +258,56 @@
       ~ abValue2 = REFLEX
       ~ abValue3 = WILL
       ~ abValue4 = BAB
+      ~ dmrPenTrt = Skill Points gained this level
+
+      var level as number
+      level = tagvalue[ClSpecWhen.?] - 1
 
       ~ Fort Save
-      If (field[usrChosen1].chosen.linkage[helper].field[cClassFort].value > field[usrChosen2].chosen.linkage[helper].field[cClassFort].value) Then
-        field[abValue].value = field[usrChosen1].chosen.linkage[helper].field[cClassFort].value
-      Else
-        field[abValue].value = field[usrChosen2].chosen.linkage[helper].field[cClassFort].value
+      If (tagis[cFort.Good] <> 0) Then
+        field[abValue].value = hero.child[gesSaves].field[cGoodSv].arrayvalue[level]
+      ElseIf (tagis[cFort.Poor] <> 0) Then
+        field[abValue].value = hero.child[gesSaves].field[cPoorSv].arrayvalue[level]
       Endif
       ~ Ref Save
-      If (field[usrChosen1].chosen.linkage[helper].field[cClassRef].value > field[usrChosen2].chosen.linkage[helper].field[cClassRef].value) Then
-        field[abValue2].value = field[usrChosen1].chosen.linkage[helper].field[cClassRef].value
-      Else
-        field[abValue2].value = field[usrChosen2].chosen.linkage[helper].field[cClassRef].value
+      If (tagis[cRef.Good] <> 0) Then
+        field[abValue2].value = hero.child[gesSaves].field[cGoodSv].arrayvalue[level]
+      ElseIf (tagis[cRef.Poor] <> 0) Then
+        field[abValue2].value = hero.child[gesSaves].field[cPoorSv].arrayvalue[level]
       Endif
       ~ Will Save
-      If (field[usrChosen1].chosen.linkage[helper].field[cClassWill].value > field[usrChosen2].chosen.linkage[helper].field[cClassWill].value) Then
-        field[abValue3].value = field[usrChosen1].chosen.linkage[helper].field[cClassWill].value
-      Else
-        field[abValue3].value = field[usrChosen2].chosen.linkage[helper].field[cClassWill].value
+      If (tagis[cWill.Good] <> 0) Then
+        field[abValue3].value = hero.child[gesSaves].field[cGoodSv].arrayvalue[level]
+      ElseIf (tagis[cWill.Poor] <> 0) Then
+        field[abValue3].value = hero.child[gesSaves].field[cPoorSv].arrayvalue[level]
       Endif
       ~ BAB
-      If (field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value > field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value) Then
-        field[abValue4].value = field[usrChosen1].chosen.linkage[helper].field[cClassBAB].value
-      Else
-        field[abValue4].value = field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value
+      If (tagis[cAttack.Good] <> 0) Then
+        field[abValue4].value = hero.child[gesSaves].field[cGoodBAB].arrayvalue[level]
+      ElseIf (tagis[cAttack.Medium] <> 0) Then
+        field[abValue4].value = hero.child[gesSaves].field[cMediumBAB].arrayvalue[level]
+      ElseIf (tagis[cAttack.Poor] <> 0) Then
+        field[abValue4].value = hero.child[gesSaves].field[cPoorBAB].arrayvalue[level]
       Endif
+
       ~ Add in our "best" values to the Gestalt Class
-      root.field[cClassFort].value += field[abValue].value
-      root.field[cClassRef].value  += field[abValue2].value
-      root.field[cClassWill].value += field[abValue3].value
-      root.field[cClassBAB].value  += field[abValue4].value
+      root.field[cClassFort].value = maximum(field[abValue].value,root.field[cClassFort].value)
+      root.field[cClassRef].value  = maximum(field[abValue2].value,root.field[cClassRef].value)
+      root.field[cClassWill].value = maximum(field[abValue3].value,root.field[cClassWill].value)
+      root.field[cClassBAB].value  = maximum(field[abValue4].value,root.field[cClassBAB].value)
+      ]]>
+    </eval>
+
+    <eval phase="Level" priority="20000" index="3" name="Gestalt Clear Values" ><![CDATA[
+      ~ If we are not the correct level for this class special
+      ~ then get out now!
+      ~ Note: Gestalt.Level is applied at First/1.
+      doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
+      ~ If both not picked then get out now!
+      doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+
+      ~ Clear both selected classes saves and BAB so we don't double add them.
+      ~ This needs to run "after" the script that saves these.
 
       ~ Chooser 1 Clear Fort, Ref, Will and BAB values
       field[usrChosen1].chosen.linkage[helper].field[cClassFort].value = 0
@@ -305,9 +319,26 @@
       field[usrChosen2].chosen.linkage[helper].field[cClassRef].value  = 0
       field[usrChosen2].chosen.linkage[helper].field[cClassWill].value = 0
       field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value  = 0
-    ]]></eval>
+      ]]>
+    </eval>
 
-    <eval phase="Final" priority="100" index="3"><![CDATA[   
+    <eval phase="PostAttr" priority="15005" index="4" name="Gestalt Add Skills"><![CDATA[
+      ~ If we are not the correct level for this class special
+      ~ then get out now!
+      ~ Note: Gestalt.Level is applied at First/1.
+      doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
+      ~ If both not picked then get out now!
+      doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
+
+      ~ dmrPenTrt = Skill Points gained this level
+
+      ~ Add in our skill points for this level
+      #resmax[resSkill] += field[dmrPenTrt].value
+      ]]>
+      <after name="Gestalt Save Values"/>
+    </eval>
+
+    <eval phase="Final" priority="100" index="5" name="Gestalt Favored Class"><![CDATA[   
       ~ Only perform this script on the VERY first copy
       doneif (tagis[Helper.FirstCopy] <> 1)
       ~ If both classes not picked then get out now!
@@ -321,7 +352,7 @@
       ]]>
     </eval>
 
-    <eval phase="Final" priority="999999999" index="4"><![CDATA[   
+    <eval phase="Final" priority="999999999" index="6" name="Gestalt Classes Tags"><![CDATA[   
       ~ If both classes not picked then get out now!
       doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
 

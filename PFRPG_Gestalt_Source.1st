@@ -13,7 +13,7 @@ July 1, 2014 Tim Shadow
   <!-- Gestalt Child Parent -->
   <source
     id="pGestalt"
-    name="Gestalt v0.5"
+    name="Gestalt v0.6"
     selectable="no"
     parent="UserParent"
     sortorder="0"

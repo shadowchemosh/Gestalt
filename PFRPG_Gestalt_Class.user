@@ -130,7 +130,19 @@
 
     <eval phase="PostAttr" priority="15000" index="2"><![CDATA[
       ~ remove HL calculated values from the Skills Resource
-      #resmax[resSkill] = 0
+      var skills as number
+      ~ If we have 1 or less bonus set skill amount to 1
+      If (hero.child[aINT].field[aBonus].value <= 1) Then
+        skills = 1
+      ~ Else set value to the Int bonus value
+      Else
+        skills = hero.child[aINT].field[aBonus].value
+      Endif  
+      ~ Add in level bonus to skills
+      skills += herofield[tSkBonus].value
+      ~ Remove the calcualted totall by 3 amounts to take into account the Gestlat class and
+      ~ its Choice1 and Choice2 class.
+      #resmax[resSkill] += -3 * skills
       ]]>
     </eval>
 
@@ -139,8 +151,8 @@
       ~ add in Int bonus and we need to add any special skill bonuses
       ~ like those a human gets.
       ~ Note: This runs once per gestalt level
-      #resmax[resSkill] += hero.child[aINT].field[aBonus].value
-      #resmax[resSkill] += herofield[tSkBonus].value
+      ~#resmax[resSkill] += hero.child[aINT].field[aBonus].value
+      ~#resmax[resSkill] += herofield[tSkBonus].value
       ]]>
     </eval>
 
@@ -158,6 +170,7 @@
     <tag group="Helper"     tag="SpecUp"/>
     <tag group="ChooseSrc2" tag="Hero"/>
     <tag group="ChooseSrc1" tag="Hero"/>
+
     <eval phase="First" priority="10" name="Gestalt Setup First"><![CDATA[
       ~ If we are not the correct level for this class special
       ~ then get out now!
@@ -245,6 +258,13 @@
       ]]>
     </eval>
 
+    <eval phase="First" priority="15" index="7"><![CDATA[
+      field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
+      field[usrChosen2].chosen.linkage[helper].field[cSkills].value = 0
+      ]]>
+    </eval>
+
+
     <eval phase="Level" priority="19999" index="2" name="Gestalt Save Values"><![CDATA[
       ~ If we are not the correct level for this class special
       ~ then get out now!
@@ -330,10 +350,17 @@
       ~ If both not picked then get out now!
       doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
 
-      ~ dmrPenTrt = Skill Points gained this level
+      var skills as number
 
+      ~ Make sure even after a negative Int bonus we have a minimum of 1 skill point
+      ~ dmrPenTrt = Skill Points gained this level
+      skills = maximum(field[dmrPenTrt].value + hero.child[aINT].field[aBonus].value,1)
+
+      ~ Add any skill bonuses per level
+      skills += herofield[tSkBonus].value
+      
       ~ Add in our skill points for this level
-      #resmax[resSkill] += field[dmrPenTrt].value
+      #resmax[resSkill] += skills
       ]]>
       <after name="Gestalt Save Values"/>
     </eval>

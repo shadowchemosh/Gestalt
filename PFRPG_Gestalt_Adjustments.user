@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document signature="Hero Lab Data">
+  <thing id="pS2GesBAB" name="Gestalt, BAB" description="Select this adjustment to change your Base Attack Bonus (BAB) up or down. To make things easier the BAB value will display on the adjustment." compset="InPlay">
+    <usesource source="srcGestalt"/>
+    <eval phase="First" priority="1000"><![CDATA[      
+      ~ If we're not enabled, get out now
+      doneif (field[pIsOn].value <> 1)
+
+      ~ Adjust the BAB value up/down
+      hero.child[Attack].field[tAtkBase].value += field[pAdjust].value]]></eval>
+    <eval phase="Render" priority="99999999" index="2"><![CDATA[      
+      ~ Set the live name with the BAB so its easy to adjust
+      field[livename].text = field[name].text & " (" & signed(hero.child[Attack].field[tAtkBase].value) & ")"]]></eval>
+    </thing>
+  <thing id="pS2GesSv" name="Gestalt, Saves" description="Select this adjustment to change your Base Save up or down. To make things easier the Base Save value will display on the adjustment." compset="InPlay">
+    <usesource source="srcGestalt"/>
+    <tag group="Adjustment" tag="Save"/>
+    <eval phase="Render" priority="99999999" index="2"><![CDATA[      
+      ~ If nothing chosen, get out now
+      doneif (field[pChosen].ischosen <> 1)
+
+      ~ Set the live name with the BAB so its easy to adjust
+      field[livename].text = field[name].text & " (" & signed(field[pChosen].chosen.field[svBase].value) & ")"
+      ]]></eval>
+    <eval phase="First" priority="1000"><![CDATA[      
+      ~ If we're not enabled, get out now
+      doneif (field[pIsOn].value <> 1)
+      ~ If nothing chosen, get out now
+      doneif (field[pChosen].ischosen <> 1)
+
+      ~ Adjust the Base Save value up/down
+      field[pChosen].chosen.field[svBase].value += field[pAdjust].value
+      ]]></eval>
+    </thing>
+  </document>

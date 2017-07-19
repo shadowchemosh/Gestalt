@@ -14,6 +14,7 @@ July 1, 2014 - Tim Shadow
   <group id="Gestalt" name="Gestalt">
     <value id="Level"    name="Level Count"/>
     <value id="Chosen"   name="Chosen Gestalt Class"/>
+	<value id="CalcDone" name="Gestalt Level Calc Complete"/>
   </group>
 
 

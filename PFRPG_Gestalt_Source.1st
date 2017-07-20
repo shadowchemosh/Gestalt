@@ -13,11 +13,11 @@ July 1, 2014 Tim Shadow
   <!-- Gestalt Child Parent -->
   <source
     id="pGestalt"
-    name="Gestalt v0.6"
+    name="Gestalt"
     selectable="no"
     parent="UserParent"
     sortorder="0"
-    description="Gestalt Varient rules for Pathfinder.">
+    description="Gestalt Variant rules for Pathfinder.">
     </source>
 
   <!-- Gestalt Variant Rules Child -->
@@ -27,7 +27,62 @@ July 1, 2014 Tim Shadow
     selectable="yes"
     parent="pGestalt"
     sortorder="10"
-    description="Gestalt Variant rules for Pathfinder released 7/6/2014. CopyRighted Tim Shadow 2014.">
+    description="Gestalt Variant rules for Pathfinder.  Originally by ShadowCremosh; updated and released by Valdacil">
     </source>
 
+  <source
+    id="srcGesHD"
+    name="HD Bonus Option"
+    selectable="yes"
+    parent="pGestalt"
+    sortorder="20"
+    description="Grant bonus HD side per level if both classes > d6">
+    </source>
+
+  <source
+    id="srcGesSave"
+    name="Saving Throw Bonus Option"
+    selectable="yes"
+    parent="pGestalt"
+    sortorder="30"
+    description="Grant +1 untyped bonus if both classes have Good save">
+    </source>
+
+  <source
+    id="srcGesSkll"
+    name="Skill Points Bonus Option"
+    selectable="yes"
+    parent="pGestalt"
+    sortorder="40"
+    description="Skill points per level calculated as higher class points + 1/2 other class">
+    </source>
+
+  <source
+    id="srcGesSklB"
+    name="Skills Bonus Option"
+    selectable="yes"
+    parent="pGestalt"
+    sortorder="50"
+    description="Any skill shared by both classes gets +1 untyped bonus">
+    </source>
+
+  <source
+    id="srcGesAttr"
+    name="Attribute Bonus Option"
+    selectable="yes"
+    parent="pGestalt"
+    sortorder="60"
+    description="+1 to 2 attributes at 4, 8, 16, 20 and +1 to all attributes at 12">
+    </source>
+
+  <source
+    id="srcGesWlth"
+    name="Starting Wealth Calculation"
+    selectable="yes"
+    parent="pGestalt"
+    sortorder="70"
+    description="Starting wealth calculated as higher class + 1/2 other class">
+    </source>
+
+	
   </document>

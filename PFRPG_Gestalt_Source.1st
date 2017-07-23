@@ -10,31 +10,41 @@ July 1, 2014 Tim Shadow
 <!-- ============================================== -->
 <!-- SOURCES                                        -->
 <!-- ============================================== -->
-  <!-- Gestalt Child Parent -->
+  <!-- Gestalt Parent -->
   <source
     id="pGestalt"
-    name="Gestalt"
+    name="Community Gestalt (v1.00)"
     selectable="no"
     parent="UserParent"
     sortorder="0"
     description="Gestalt Variant rules for Pathfinder.">
     </source>
+  <!-- Gestalt Options Parent -->
+  <source
+    id="pGestaltOp"
+    name="Gestalt Options"
+    selectable="no"
+    parent="pGestalt"
+    sortorder="5"
+    description="Gestalt Variant optional rules for Pathfinder by Valdacil.">
+    </source>
 
   <!-- Gestalt Variant Rules Child -->
   <source
     id="srcGestalt"
-    name="Gestalt Variant"
+    name="Gestalt Variant Core"
     selectable="yes"
     parent="pGestalt"
-    sortorder="10"
-    description="Gestalt Variant rules for Pathfinder.  Originally by ShadowCremosh; updated and released by Valdacil">
+    sortorder="0"
+    description="Gestalt Variant rules for Pathfinder. Originally by ShadowCremosh; updated and released by Valdacil">
     </source>
 
+  <!-- Gestalt Optional Rules Child -->
   <source
     id="srcGesHD"
     name="HD Bonus Option"
     selectable="yes"
-    parent="pGestalt"
+    parent="pGestaltOp"
     sortorder="20"
     description="Grant bonus HD side per level if both classes > d6">
     </source>
@@ -43,7 +53,7 @@ July 1, 2014 Tim Shadow
     id="srcGesSave"
     name="Saving Throw Bonus Option"
     selectable="yes"
-    parent="pGestalt"
+    parent="pGestaltOp"
     sortorder="30"
     description="Grant +1 untyped bonus if both classes have Good save">
     </source>
@@ -52,7 +62,7 @@ July 1, 2014 Tim Shadow
     id="srcGesSkll"
     name="Skill Points Bonus Option"
     selectable="yes"
-    parent="pGestalt"
+    parent="pGestaltOp"
     sortorder="40"
     description="Skill points per level calculated as higher class points + 1/2 other class">
     </source>
@@ -61,7 +71,7 @@ July 1, 2014 Tim Shadow
     id="srcGesSklB"
     name="Skills Bonus Option"
     selectable="yes"
-    parent="pGestalt"
+    parent="pGestaltOp"
     sortorder="50"
     description="Any skill shared by both classes gets +1 untyped bonus">
     </source>
@@ -70,7 +80,7 @@ July 1, 2014 Tim Shadow
     id="srcGesAttr"
     name="Attribute Bonus Option"
     selectable="yes"
-    parent="pGestalt"
+    parent="pGestaltOp"
     sortorder="60"
     description="+1 to 2 attributes at 4, 8, 16, 20 and +1 to all attributes at 12">
     </source>
@@ -79,10 +89,10 @@ July 1, 2014 Tim Shadow
     id="srcGesWlth"
     name="Starting Wealth Calculation"
     selectable="yes"
-    parent="pGestalt"
+    parent="pGestaltOp"
     sortorder="70"
     description="Starting wealth calculated as higher class + 1/2 other class">
     </source>
 
-	
+
   </document>

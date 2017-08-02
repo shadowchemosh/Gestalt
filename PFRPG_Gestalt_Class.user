@@ -70,19 +70,19 @@
     <bootstrap thing="cS2GClasPi">
       <autotag group="ClSpecWhen" tag="2"/>
       </bootstrap>
-    <eval phase="Level" priority="19997" index="3">~ Clear Fort, Ref, Will and BAB values
+    <eval phase="Level" priority="19997" index="3" name="Gestalt Clear Gestalt Class BAB and Saves">~ Clear Fort, Ref, Will and BAB values
       ~ This prevents the Save and BAB tags from having an effect
       ~ on the this class.
       field[cClassFort].value = 0
       field[cClassRef].value  = 0
       field[cClassWill].value = 0
       field[cClassBAB].value  = 0</eval>
-    <eval phase="First" priority="1">~ Clear Gestalt BAB and saves
+    <eval phase="First" priority="1" name="Gestalt Clear Gestalt BAB and Saves">~ Clear Gestalt BAB and saves
       perform delete[cAttack.?]
       perform delete[cFort.?]
       perform delete[cRef.?]
       perform delete[cWill.?]</eval>
-    <eval phase="PreLevel" priority="3" index="2"><![CDATA[
+    <eval phase="PreLevel" priority="3" index="2" name="Gestalt Calc Gestalt Level and HD"><![CDATA[
       ~ If we are under level 3 don't do anything as we will cause errors
       ~ Once we have three classes then we can modify it down to two.
       doneif (hero.tagcount[Classes.?] < 3)
@@ -102,7 +102,7 @@
         perform hero.assign[Hero.HitDice]
         perform hero.assign[Classes.S2Gestalt]
       loop]]></eval>
-    <eval phase="Level" priority="19999" index="4"><![CDATA[
+    <eval phase="Level" priority="19999" index="4" name="Gestalt Calc BAB and Saves"><![CDATA[
       ~ Prep variables
       var LBAB as number
       var LFort as number
@@ -112,7 +112,7 @@
       var RFort as number
       var RRefl as number
       var RWill as number
-
+      
       ~ Loop through Class Pickers and gather data
       foreach pick in hero from Ability where "thingid.cS2GClasPi"
         ~ Only look at picks from current level and lower
@@ -127,7 +127,7 @@
               LWill += eachpick.field[usrChosen1].chosen.linkage[helper].field[cClassWill].value
               perform eachpick.field[usrChosen1].chosen.linkage[helper].assign[Gestalt.CalcDone]
             EndIf
-
+            
             ~ If right side not already included in calculations, add to running calculation
             If (eachpick.field[usrChosen2].chosen.linkage[helper].tagcount[Gestalt.CalcDone] = 0) Then
               RBAB += eachpick.field[usrChosen2].chosen.linkage[helper].field[cClassBAB].value
@@ -139,22 +139,22 @@
           EndIf
         EndIf
       nexteach
-
+      
       ~ Pick higher BAB from left/right
       field[cClassBAB].value = maximum(LBAB,RBAB)
-
+      
       ~ Pick higher Saves from left/right
       field[cClassFort].value = maximum(LFort,RFort)
       field[cClassRef].value = maximum(LRefl,RRefl)
       field[cClassWill].value = maximum(LWill,RWill)]]></eval>
-    <eval phase="PostAttr" priority="10001" index="5"><![CDATA[
+    <eval phase="PostAttr" priority="10001" index="5" name="Gestalt Skill Bonus Option"><![CDATA[
       ~ If we haven't selected this option, get out now
       doneif (hero.tagcount[source.srcGesSklB] = 0)
-
+      
       ~ Valdacil: Skill bonus if both classes share class skill
       ~ Valdacil: Only run at Gestalt level 1
       ~ Individual Skills
-
+      
       If (hero.tagcount[ClassSkill.skAcrobat] >= 2) Then
         #skillbonus[skAcrobat] += 1
       Endif
@@ -221,17 +221,17 @@
       If (hero.tagcount[ClassSkill.skUseMagic] >= 2) Then
         #skillbonus[skUseMagic] += 1
       Endif
-
+      
       ~ Craft Class Skills
       If (hero.tagcount[ClassSkill.Craft] >= 2) Then
         #skillbonus[AllCraft] += 1
       Endif
-
+      
       ~ Profession Class Skills
       If (hero.tagcount[ClassSkill.Profession] >= 2) Then
         #skillbonus[AllProf] += 1
       Endif
-
+      
       ~ Knowledge Class Skills
       If (hero.tagcount[ClassSkill.Knowledge] >= 2) Then
         #skillbonus[AllKnow] += 1
@@ -270,7 +270,7 @@
           #skillbonus[skKnowOth] += 1
         Endif
       Endif
-
+      
       ~ Perform Class Skills
       If (hero.tagcount[ClassSkill.Perform] >= 2) Then
         #skillbonus[AllPerform] += 1
@@ -312,7 +312,7 @@
     <tag group="ClassType" tag="Normal"/>
     <bootstrap thing="cHelpS2G"></bootstrap>
     <link linkage="helper" thing="cHelpS2G"/>
-    <eval phase="PostLevel" priority="10"><![CDATA[
+    <eval phase="PostLevel" priority="10" name="Gestalt Adjust Level"><![CDATA[
       ~ If we are under level 3 don't do anything as we will cause errors
       ~ Once we have three classes then we can modify it down to two.
       doneif (herofield[tLevel].value < 3)
@@ -321,7 +321,7 @@
       ~ This helps remove each gestalt class
       herofield[tLevel].value += -2
       herofield[tSkillCnt].value += -2]]></eval>
-    <eval phase="PostAttr" priority="15000" index="2"><![CDATA[
+    <eval phase="PostAttr" priority="15000" index="2" name="Gestalt Calc Skill Points"><![CDATA[
       ~ remove HL calculated values from the Skills Resource
       var skills as number
       ~ If we have 1 or less bonus set skill amount to 1
@@ -330,7 +330,7 @@
       ~ Else set value to the Int bonus value
       Else
         skills = hero.child[aINT].field[aBonus].value
-      Endif
+      Endif  
       ~ Add in level bonus to skills
       skills += herofield[tSkBonus].value
       ~ Remove the calcualted totall by 3 amounts to take into account the Gestlat class and
@@ -340,19 +340,19 @@
       ~ Remove 3 background skills since game grants 2 per class for total of 6
       ~ If we aren't using the skill points bonus rule (higher + 1/2 other) then background
       ~ skills is 2 per level; if we are using the rule it is 3 per level
-
+      
       If (hero.tagcount[source.srcGesSkll] > 0) then
         #resmax[resBackSkl] += -3
       Else
         #resmax[resBackSkl] += -4
       Endif]]></eval>
-    <eval phase="PostAttr" priority="15010" index="3">~ At this point we have a single classes skills but we need to now
+    <eval phase="PostAttr" priority="15010" index="3" name="Gestalt Commented Out">~ At this point we have a single classes skills but we need to now
       ~ add in Int bonus and we need to add any special skill bonuses
       ~ like those a human gets.
       ~ Note: This runs once per gestalt level
       ~#resmax[resSkill] += hero.child[aINT].field[aBonus].value
       ~#resmax[resSkill] += herofield[tSkBonus].value</eval>
-    <eval phase="First" priority="1" index="4">~ Push a very early level tag so we know what gestalt level we are
+    <eval phase="First" priority="1" index="4" name="Gestalt Add Gestalt Level">~ Push a very early level tag so we know what gestalt level we are
       perform hero.assign[Gestalt.Level]</eval>
     <eval phase="First" priority="200" index="5" name="Gestalt VMC Level Adjust"><![CDATA[
       ~ If we don't have any secondary classes (VMC), get out now
@@ -377,28 +377,18 @@
       ~ then get out now!
       ~ Note: Gestalt.Level is applied at First/1.
       doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
-
+      
       var calcvalue as number
       If (field[usrChosen1].ischosen <> 0) Then
         perform field[usrChosen1].chosen.assign[Helper.FixedHP]
         perform field[usrChosen1].chosen.assign[Helper.CLNoHP]
         perform field[usrChosen1].chosen.assign[Gestalt.Chosen]
-        perform field[usrChosen1].chosen.linkage[helper].pulltags[cAttack.?]
-        perform field[usrChosen1].chosen.linkage[helper].pulltags[cFort.?]
-        perform field[usrChosen1].chosen.linkage[helper].pulltags[cRef.?]
-        perform field[usrChosen1].chosen.linkage[helper].pulltags[cWill.?]
-        perform field[usrChosen1].chosen.pulltags[FavClass.?]
       Endif
 
       If (field[usrChosen2].ischosen <> 0) Then
         perform field[usrChosen2].chosen.assign[Helper.FixedHP]
         perform field[usrChosen2].chosen.assign[Helper.CLNoHP]
         perform field[usrChosen2].chosen.assign[Gestalt.Chosen]
-        perform field[usrChosen2].chosen.linkage[helper].pulltags[cAttack.?]
-        perform field[usrChosen2].chosen.linkage[helper].pulltags[cFort.?]
-        perform field[usrChosen2].chosen.linkage[helper].pulltags[cRef.?]
-        perform field[usrChosen2].chosen.linkage[helper].pulltags[cWill.?]
-        perform field[usrChosen2].chosen.pulltags[FavClass.?]
       Endif
 
       ~ If both not picked then get out now!
@@ -406,10 +396,10 @@
 
       ~ If the source isn't selected, get out now
       doneif (hero.tagcount[source.srcGesSave] = 0)
-
+      
       ~ If we aren't exactly the level of the picker get out now
       doneif (hero.tagcount[Gestalt.Level] <> tagvalue[ClSpecWhen.?])
-
+      
       ~ Calculate if both classes have a Good save for the bonus if selected
       If (field[usrChosen1].chosen.linkage[helper].pulltags[cFort.Good] + field[usrChosen2].chosen.linkage[helper].pulltags[cFort.Good] = 2) Then
         hero.child[svFort].field[svMisc].value += 1
@@ -420,7 +410,7 @@
       If (field[usrChosen1].chosen.linkage[helper].pulltags[cWill.Good] + field[usrChosen2].chosen.linkage[helper].pulltags[cWill.Good] = 2) Then
         hero.child[svWill].field[svMisc].value += 1
       Endif]]></eval>
-    <eval phase="PostAttr" priority="10002" index="7">field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
+    <eval phase="PostAttr" priority="10002" index="7" name="Gestalt Clear Classes Skills">field[usrChosen1].chosen.linkage[helper].field[cSkills].value = 0
       field[usrChosen2].chosen.linkage[helper].field[cSkills].value = 0</eval>
     <eval phase="Level" priority="20000" index="3" name="Gestalt Clear Values"><![CDATA[
       ~ If we are not the correct level for this class special
@@ -459,11 +449,10 @@
 
       ~ Add any skill bonuses per level
       skills += herofield[tSkBonus].value
-
+      
       ~ Add in our skill points for this level
-      #resmax[resSkill] += skills]]>
-      </eval>
-    <eval phase="Final" index="5" name="Gestalt Favored Class"><![CDATA[
+      #resmax[resSkill] += skills]]></eval>
+    <eval phase="Final" index="5" name="Gestalt Favored Class"><![CDATA[   
       ~ Only perform this script on the VERY first copy
       doneif (tagis[Helper.FirstCopy] <> 1)
       ~ If both classes not picked then get out now!
@@ -474,7 +463,7 @@
       foreach pick in hero from FavClass where tagids[FavClass.?,"|"]
         perform eachpick.assign[FavClass.cS2Gestalt]
       nexteach]]></eval>
-    <eval phase="Final" priority="999999999" index="6" name="Gestalt Classes Tags"><![CDATA[
+    <eval phase="Final" priority="999999999" index="6" name="Gestalt Classes Tags"><![CDATA[   
       ~ If both classes not picked then get out now!
       doneif (field[usrChosen1].ischosen + field[usrChosen2].ischosen <> 2)
 
@@ -492,26 +481,26 @@
       ~ Valdacil: added calcvalue to get 2ndClassSkillPoints/2
 
       field[dmrPenTrt].value = maximum(field[usrChosen1].chosen.linkage[helper].field[cSkills].value,field[usrChosen2].chosen.linkage[helper].field[cSkills].value)
-
+      
       If (hero.tagcount[source.srcGesSkll] > 0) then
         calcvalue = minimum(field[usrChosen1].chosen.linkage[helper].field[cSkills].value,field[usrChosen2].chosen.linkage[helper].field[cSkills].value) * 0.5
         calcvalue = round(calcvalue,0,-1)
         field[dmrPenTrt].value += calcvalue
       EndIf]]></eval>
-    <eval phase="First" priority="11" index="9"><![CDATA[
+    <eval phase="First" priority="11" index="9" name="Gestalt Calc HD and HP"><![CDATA[      
       ~ If we are not the correct level for this class special
       ~ then get out now!
       ~ Note: Gestalt.Level is applied at First/1.
       doneif (hero.tagcount[Gestalt.Level] < tagvalue[ClSpecWhen.?])
-
+      
       ~ Die Size
       var calcvalue as number
       var levelHD as number
       var index as number
       index = tagvalue[ClSpecWhen.?]
-
+      
       levelHD = maximum(field[usrChosen1].chosen.linkage[helper].field[cHDSides].value,field[usrChosen2].chosen.linkage[helper].field[cHDSides].value)
-
+      
       ~ Valdacil: calcvalue for bonus HP based on second class if source selected
       ~ Valdacil: d6=0; d8=+1; d10=+2; d12=+3;  equals (dX-6)/2
       If (hero.tagcount[source.srcGesHD] > 0) Then
@@ -521,12 +510,12 @@
         calcvalue = maximum(calcvalue,0)
         levelHD = levelHD + calcvalue
       Endif
-
-      ~ If this is 1st lvl, set HD value
-      If (tagvalue[ClSpecWhen.?] = 1) then
+      
+      ~ If this is current lvl, set HD value
+      If (hero.tagcount[Gestalt.Level] = tagvalue[ClSpecWhen.?]) Then
         root.field[cHDSides].value = levelHD
       EndIf
-
+      
       ~ Zero out the two gestalt classes Hit Die value
       ~field[usrChosen1].chosen.linkage[helper].field[cHDSides].value = 0
       ~field[usrChosen2].chosen.linkage[helper].field[cHDSides].value = 0
@@ -534,19 +523,27 @@
       ~ Zero out the two gestalt classes Hit Points value
       field[usrChosen1].chosen.field[cHP].value = 0
       field[usrChosen2].chosen.field[cHP].value = 0
-
+      
+      ~ If we aren't using Max or Avg HP rules, get out now
+      doneif (hero.tagcount[source.OptHPs] + hero.tagcount[source.OptHPAvg] = 0)
+      
       ~ Try to find the matching class level
       perform hero.findchild[BaseClLev, "thingid.cS2Gestalt & fieldval:cThisIndex = " & index].setfocus
       ~ if I failed to find it, get out now
       doneif (state.isfocus = 0)
-
-      ~ Set the HP for this level
+      
+      ~ Set the HP for this level if using Max or Avg HP
+      If (hero.tagcount[source.OptHPs] > 0) Then
+        calcvalue = levelHD
+      ElseIf (hero.tagcount[source.OptHPAvg] > 0) Then
+        calcvalue = round(levelHD /2,0,1)
+      EndIf
       trustme
-      focus.field[cHP].value = levelHD]]></eval>
-    <eval phase="First" priority="12" index="10"><![CDATA[
+      focus.field[cHP].value = calcvalue]]></eval>
+    <eval phase="First" priority="12" index="10" name="Gestalt Attribute Bonus"><![CDATA[
       ~ If we haven't selected this option, get out now
       doneif (hero.tagcount[source.srcGesAttr] = 0)
-
+	  
       ~ If we are not the correct level for this class special
       ~ then get out now!
       ~ Note: Gestalt.Level is applied at First/1.
@@ -570,13 +567,13 @@
           herofield[tAttrEvol].value += 1
         EndIf
       EndIf]]></eval>
-    <eval phase="First" priority="10" index="11"><![CDATA[
+    <eval phase="First" priority="10" index="11" name="Gestalt Starting Wealth"><![CDATA[
       ~ If the source isn't selected, get out now
       doneif (hero.tagcount[source.srcGesWlth] = 0)
 
       ~ Starting wealth is only calculated at first level
       doneif (tagvalue[ClSpecWhen.?] > 1)
-
+      
       ~ Calculate starting wealth based on both classes
       var calcvalue as number
       var startwlth as number
@@ -586,5 +583,8 @@
       startwlth = maximum(field[usrChosen1].chosen.linkage[helper].field[cSCRNumDce].value,field[usrChosen2].chosen.linkage[helper].field[cSCRNumDce].value)
       startwlth = startwlth + calcvalue
       root.field[cSCRNumDce].value = startwlth]]></eval>
+    <eval phase="First" priority="20" index="12" name="Gestalt Clear Classes HD Value">~ Zero out the two gestalt classes Hit Die value
+      field[usrChosen1].chosen.linkage[helper].field[cHDSides].value = 0
+      field[usrChosen2].chosen.linkage[helper].field[cHDSides].value = 0</eval>
     </thing>
   </document>
